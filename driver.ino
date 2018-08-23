@@ -29,37 +29,43 @@ void setup() {
 }
 
 // Setup Serial Data port
-const byte numChars = 32;
-char receivedChars[numChars];
+const byte numChars = 5;
+char receivedChars[numChars+1];
+float fparam;
 boolean newData = false;
 boolean getNumData = false;
-char lastCommand[32] = "";
+int args = 0; 
+int lastCommand = -1;
 
 void receiveData(){
     static byte index = 0;
-    char endMarker = '\n';
-    char rc;
+    char endMarker = '\n'; //indicate end of char
+    char rc; //received character in Serial.read()
 
     while(Serial.available() && newData == false){
         rc = Serial.read();
-        if(rc != endMarker){
+        // read up to 4 bytes or /n indicating new line
+        if(rc != endMarker && index < numChars){
             receivedChars[index] = rc;
             index++;
-            if(index >= numChars){
-              index = numChars - 1;
-            }
         }
-        else{
+        else if(rc == endMarker){
             receivedChars[index] = '\0';
             index = 0;
             newData = true;
         }
     }
+    
 }
 
 void showNewData() {
     if (newData == true) {
+        if (args <= 0){
+            args = atoi(receivedChars);
+        }
         parseCommand(receivedChars);
+        args--;
+
         newData = false;
     }
 }
@@ -83,31 +89,66 @@ void collectSoilMoisture(int pin = 0){
 //Command Parser when serial comes in
 void parseCommand(char* cmd){
     Serial.println("busy");
-    if(!strcmp(cmd,"info")){
+    if(!strcmp(cmd,"INFO")){
         //return device info
         Serial.println("AutoGardenerProject");
     }
-    else if(!strcmp(cmd,"waterPlant")){
-        //set global flag to collect number  
-        waterPlant();
+    else if(!strcmp(cmd,"WATER")){
+        if (args == 0){
+            waterPlant();
+        }
+        else{
+            lastCommand = 0;
+        }
     }
-    else if(!strcmp(cmd,"collectSoilMoisture")){
-        //set global flag to collect number  
-        collectSoilMoisture();
+    else if(!strcmp(cmd,"COLSM")){
+        if(args == 0){
+            collectSoilMoisture();
+        }
+        else{
+            lastCommand = 1;  
+        }
     }
-    else if(!strcmp(cmd,"collectTemp")){
+    else if(!strcmp(cmd,"COLLT")){
         float temp = dht22.readTemperature();
         Serial.println(temp); //Relative Temperature in degrees Celsius
     }
-    else if(!strcmp(cmd,"collectHum")){
+    else if(!strcmp(cmd,"COLLH")){
         float hum = dht22.readHumidity();
         Serial.println(hum); //Relative Humidity in percentage
+    }
+    else if(atoi(cmd) != 0 && lastCommand == -1){
+        Serial.println("done");
+        return;
+    }
+    else if(args > 0 && lastCommand != -1){
+        switch(lastCommand){
+            //waterPlant
+            case 0:
+                waterPlant(atof(cmd));
+            break;
+
+            //collectSoilMoisture
+            case 1:
+                collectSoilMoisture(atoi(cmd));
+            break;
+            
+            default:
+                Serial.println("Error:WrongParam");
+            break;
+        }
+        //rewrite args as 1 because it doesnt take more than 1 param
+        lastCommand = -1;
     }
     else{
         //Error:NoCommand
         Serial.println("Error:CommandNotFound");
     }
     Serial.println("done");
+
+    if(lastCommand == -1){
+        args = 0;  
+    }
 }
 
 
