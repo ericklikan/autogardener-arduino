@@ -18,6 +18,8 @@ const int buttonPin = 5; //This will activate the pump for x seconds
 //ANALOG PINS
 const int soilMoisturePins[] = {3,4}; //analog pins for soil moisture
 
+//global vars
+float temp = 0;
 
 void setup() {
     Serial.begin(9600);
@@ -99,6 +101,7 @@ void parseCommand(char* cmd){
         }
         else{
             lastCommand = 0;
+            return;
         }
     }
     else if(!strcmp(cmd,"COLSM")){
@@ -107,21 +110,27 @@ void parseCommand(char* cmd){
         }
         else{
             lastCommand = 1;  
+            return;
         }
     }
     else if(!strcmp(cmd,"COLLT")){
-        float temp = dht22.readTemperature();
-        Serial.println(temp); //Relative Temperature in degrees Celsius
+        if(args == 0){
+            temp = dht22.readTemperature();
+            Serial.println(temp); //Relative Temperature in degrees Celsius
+        }
+        else{
+            lastCommand = 2;
+            return;  
+        }
     }
     else if(!strcmp(cmd,"COLLH")){
         float hum = dht22.readHumidity();
         Serial.println(hum); //Relative Humidity in percentage
     }
     else if(atoi(cmd) != 0 && lastCommand == -1){
-        Serial.println("done");
         return;
     }
-    else if(args > 0 && lastCommand != -1){
+    else if(args >= 0 && lastCommand != -1){
         switch(lastCommand){
             //waterPlant
             case 0:
@@ -131,6 +140,12 @@ void parseCommand(char* cmd){
             //collectSoilMoisture
             case 1:
                 collectSoilMoisture(atoi(cmd));
+            break;
+
+            //get Temperature
+            case 2:
+                temp = dht22.readTemperature(atoi(cmd));
+                Serial.println(temp);
             break;
             
             default:
