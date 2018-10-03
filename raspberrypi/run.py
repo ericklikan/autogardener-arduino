@@ -1,12 +1,12 @@
-from source.EnvironmentDataSource import EnvironmentDataSource
-from controller import PlantController
+from .source.EnvironmentDataSource import EnvironmentDataSource
+from .controller import PlantController
 from threading import Thread, Lock
 import time
 
 mutex = Lock()
 
 controlDevice = PlantController('/dev/ttyUSB0', 9600, mutex)
-data = EnvironmentDataSource(controlDevice.dev, mutex)
+data = EnvironmentDataSource(controlDevice.dev, mutex, observer)
 
 t = Thread(target=data.get_sensor_values)
 t.start()
