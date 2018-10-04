@@ -1,36 +1,42 @@
+from rx import Observer
+from serial import Serial
+from threading import Lock
+
 from .TemperatureData import TemperatureData
 from .HumidityData import HumidityData
 from .SoilMoistureData import SoilMoistureData
 
 
 class EnvironmentDataSource:
-    device = None
-    mutex = None
+    __device: Serial
+    __mutex: Lock
+    __observer: Observer
 
-    def __init__(self, device, mutex, observer):
-        self.device = device
-        self.mutex = mutex
-        self.observer = observer
+    def __init__(self, device: Serial, mutex: Lock):
+        self.__device = device
+        self.__mutex = mutex
 
-    def produce_data(self, data):
+    @staticmethod
+    def produce_data(data, observer: Observer):
         if data[0:4] == "TEMP":
-            self.observer.on_next(TemperatureData(data))
+            observer.on_next(TemperatureData(data))
         elif data[0:4] == "HUMI":
-            self.observer.on_next(HumidityData(data))
+            observer.on_next(HumidityData(data))
         elif data[0:3] == "SM0":
-            self.observer.on_next(SoilMoistureData(data))
+            observer.on_next(SoilMoistureData(data))
+        else:
+            observer.on_error()
 
-
-    def get_sensor_values(self):
+    def get_sensor_values(self, observer: Observer):
         while True:
-            self.mutex.acquire()
+            self.__mutex.acquire()
             try:
-                val = self.device.readline().decode().strip('\r\n')
+                val = self.__device.readline().decode().strip('\r\n')
                 if len(val) != 0:
-                    print(val)
+                    self.produce_data(val, observer)
 
             except AttributeError:
                 pass
 
             finally:
-                self.mutex.release()
+                self.__mutex.release()

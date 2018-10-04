@@ -1,12 +1,26 @@
 import datetime
 
+from .Data import Data
 
-class SoilMoistureData:
-    sensor_index = None
-    value = 0
-    timestamp = None
+
+class SoilMoistureData(Data):
+    __sensor_index: int
+    __value: int
+    __timestamp: datetime.datetime
 
     def __init__(self, data, timestamp=datetime.datetime.now()):
-        self.value = int(data[3])
-        self.value = int(data[4:])
-        self.timestamp = timestamp
+        self.__sensor_index = int(data[3])
+        self.__value = int(data[4:])
+        self.__timestamp = timestamp
+
+    @property
+    def index(self):
+        return self.__sensor_index
+
+    @property
+    def value(self):
+        return self.__value
+
+    @property
+    def timestamp(self):
+        return self.__timestamp
