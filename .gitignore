@@ -1,1 +1,2 @@
 *.pyc
+raspberrypi/firebase_config.py
