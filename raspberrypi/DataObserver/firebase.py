@@ -36,9 +36,6 @@ class Firebase:
         # Password is only needed for first login, refresh token will reauth for us
         password = os.environ.get('FIREBASE_PW') or ""
 
-        print(email)
-        print(password)
-
         try:
             self.user = self.auth.sign_in_with_email_and_password(email, password)
             store('refreshToken', self.user['refreshToken'])
