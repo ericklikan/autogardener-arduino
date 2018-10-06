@@ -23,7 +23,7 @@ def store(key: str, value):
     data[key] = base64.b64encode(token).decode()
 
     with open('config.json', 'w') as f:
-        f.write(json.dumps(data))
+        json.dump(data, f, indent=4, sort_keys=True)
 
 
 def retrieve(key: str):
@@ -36,7 +36,7 @@ def retrieve(key: str):
     token = base64.b64decode(data[key])
     f = Fernet(generate_key())
 
-    return f.decrypt(token)
+    return f.decrypt(token).decode()
 
 
 def generate_key():
