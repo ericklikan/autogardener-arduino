@@ -24,8 +24,6 @@ class EnvironmentDataSource:
             observer.on_next(HumidityData(data))
         elif data[0:3] == "SM0":
             observer.on_next(SoilMoistureData(data))
-        else:
-            observer.on_error()
 
     def get_sensor_values(self, observer: Observer):
         while True:
@@ -35,7 +33,8 @@ class EnvironmentDataSource:
                 if len(val) != 0:
                     self.produce_data(val, observer)
 
-            except AttributeError:
+            except AttributeError as e:
+                print(e)
                 pass
 
             finally:

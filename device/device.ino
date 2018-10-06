@@ -23,8 +23,8 @@ float temp = 0;
 float hum = 0;
 int soilMoisture[] = {0,0};
 AsyncTimer SMTimers[] = {
-    AsyncTimer(1000),
-    AsyncTimer(1000)  
+    AsyncTimer(5000),
+    AsyncTimer(5000)  
 };
 
 AsyncTimer pumpTimer;

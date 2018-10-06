@@ -16,7 +16,7 @@ class SoilMoistureData(Data):
 
     @property
     def type(self):
-        return self.__type
+        return "{} {}".format(self.__type, self.__sensor_index)
 
     @property
     def index(self):
