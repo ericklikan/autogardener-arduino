@@ -4,6 +4,7 @@ from .Data import Data
 
 
 class SoilMoistureData(Data):
+    __type: str = 'Soil Moisture'
     __sensor_index: int
     __value: int
     __timestamp: datetime.datetime
@@ -12,6 +13,10 @@ class SoilMoistureData(Data):
         self.__sensor_index = int(data[3])
         self.__value = int(data[4:])
         self.__timestamp = timestamp
+
+    @property
+    def type(self):
+        return self.__type
 
     @property
     def index(self):

@@ -5,6 +5,11 @@ class Data(ABC):
 
     @property
     @abstractmethod
+    def type(self):
+        pass
+
+    @property
+    @abstractmethod
     def value(self):
         pass
 
