@@ -19,6 +19,7 @@ Observable.create(data.get_sensor_values) \
         .subscribe_on(scheduler) \
         .subscribe(observer)
 
-Observable.just("waterPlant") \
-        .subscribe_on(scheduler) \
-        .subscribe(on_next=lambda i: controlDevice.waterPlant())
+#
+# Observable.interval(1000) \
+#         .subscribe_on(scheduler) \
+#         .subscribe(on_next=lambda i: controlDevice.waterPlant())
