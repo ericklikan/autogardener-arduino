@@ -1,17 +1,29 @@
-from serial import Serial
+from serial import Serial, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
+from time import sleep
 
 
 class PlantController:
 
     def __init__(self, device, baud_rate, mutex):
         try:
-            self.dev = Serial(device, baud_rate, timeout=0)
+            self.dev = Serial(device,
+                              baud_rate,
+                              bytesize=EIGHTBITS,
+                              parity=PARITY_NONE,
+                              stopbits=STOPBITS_ONE,
+                              timeout=0,
+                              xonxoff=0,
+                              rtscts=0)
             print('Initialized Serial Device.')
             self.success = True
             self.mutex = mutex
-            self.clear_buffer()
+            self.dev.dtr = True
+            sleep(1)
+            self.dev.flushInput()
+            self.dev.dtr = False
 
-        except:
+        except Exception as e:
+            print(e)
             print('Error: Something went wrong.')
             self.success = False
 
