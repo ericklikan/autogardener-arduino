@@ -22,7 +22,7 @@ class Firebase:
 
     def update_data(self, data_type, data):
         try:
-            self.db.child("users").child(retrieve("userid")).update({data_type: data})
+            self.db.child("users").child(retrieve("userid")).update({data_type: data}, token=self.user['idToken'])
         except requests.exceptions.HTTPError as e:
             print(e)
             self.__refresh_user()
