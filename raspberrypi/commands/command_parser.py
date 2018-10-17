@@ -1,4 +1,5 @@
 from socketIO_client import SocketIO, BaseNamespace
+from threading import Thread
 
 hostname = 'localhost'
 port = 5000
@@ -15,8 +16,8 @@ class CommandNamespace(BaseNamespace):
 
     def __parse_command(self, data):
         try:
-            self.__callback(data)
-        except TypeError as e:
+            self.__callback(data['command'], data['data'])
+        except (TypeError, KeyError) as e:
             print(e)
 
     def on_event(self, event, *args):
@@ -28,14 +29,30 @@ class CommandNamespace(BaseNamespace):
                 print(e)
 
 
-def test_callback(data):
-    print("CALLBACK!__")
-    print(data)
+class CommandParser:
 
+    __callbacks = {}
 
-socketIO = SocketIO(hostname, port, CommandNamespace)
-command_namespace = socketIO.define(CommandNamespace, command_namespace_path)
-command_namespace.set_listener(test_callback)
-command_namespace.emit('join', {'room': room_name})
+    def __init__(self):
+        self.__path = command_namespace_path
+        self.__port = port
+        self.__room = room_name
+        self.__hostname = hostname
+        self.__socket = SocketIO(self.__hostname, self.__port, CommandNamespace)
+        self.__namespace = self.__socket.define(CommandNamespace, self.__path)
+        self.__namespace.set_listener(self.listener)
+        self.__namespace.emit('join', {'room': room_name})
+        t = Thread(target=self.__socket.wait)
+        t.start()
 
-socketIO.wait()
+    def set_command_callback(self, command, command_callback):
+        self.__callbacks[command] = command_callback
+
+    def delete_command_callback(self, command):
+        del self.__callbacks[command]
+
+    def listener(self, command, data):
+        try:
+            self.__callbacks[command](data)
+        except KeyError as e:
+            print(e)
