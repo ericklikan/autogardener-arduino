@@ -2,3 +2,4 @@ pyserial
 rx
 pyrebase
 cryptography
+socketIO_client
