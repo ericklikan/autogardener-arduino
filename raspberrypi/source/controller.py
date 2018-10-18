@@ -1,5 +1,6 @@
 from serial import Serial, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 from time import sleep
+import asyncio
 
 
 class PlantController:
@@ -36,32 +37,46 @@ class PlantController:
 
     def __send_command(self, command, params=()):
         self.mutex.acquire()
-        writebuffer = []
-        if len(params) > 0:
-            writebuffer.append(len(params) + 1)
-
-        writebuffer.append(command)
-
-        if len(params) > 0:
-            writebuffer += params
-
-        for item in writebuffer:
-            self.dev.write('{}\n'.format(item).encode())
         ret = []
 
-        while True:
-            res = self.dev.readline()
-            if res not in [b'busy\r\n', b'done\r\n']:
-                ret.append(res.decode().strip('\r\n'))
-            if res == b'done\r\n':
-                break
-        self.dev.flush()
+        try:
+            writebuffer = []
+            if len(params) > 0:
+                writebuffer.append(len(params) + 1)
+
+            writebuffer.append(command)
+
+            if len(params) > 0:
+                writebuffer += params
+
+            for item in writebuffer:
+                self.dev.write('{}\n'.format(item).encode())
+
+            while True:
+                res = self.dev.readline()
+                # if res not in [b'busy\r\n', b'done\r\n']:
+                #     ret.append(res.decode().strip('\r\n'))
+                if res == b'done\r\n':
+                    break
+            self.dev.flush()
+
+        except (ValueError, ValueError, UnicodeDecodeError) as e:
+            print(e)
+            self.dev.dtr = True
+            sleep(1)
+
+            self.dev.flushInput()
+            self.dev.dtr = False
+
         self.mutex.release()
+
         return ret
 
     def waterPlant(self, seconds=-1):
         if seconds == -1:
             self.__send_command('WATER')
         else:
-            self.__send_command('WATER', [seconds])
+            self.__send_command('STWAT')
+            sleep(seconds)
+            self.__send_command('SPWAT')
 

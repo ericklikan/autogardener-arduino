@@ -26,6 +26,7 @@ AsyncTimer SMTimers[] = {
     AsyncTimer(5000),
     AsyncTimer(5000)  
 };
+bool pumpRunning = false;
 
 AsyncTimer pumpTimer;
 
@@ -82,14 +83,20 @@ void showNewData() {
 
 //Water plant
 void  waterPlant(float seconds = 3.0){
-    if(pumpTimer.checkExpiration()){
-        analogWrite(pumpPin,255);  
+    if(!pumpRunning){
         pumpTimer = AsyncTimer(seconds * 1000, stopWatering);
         pumpTimer.start();
+        startWatering();
     }
 }
 
+void startWatering() {
+    pumpRunning = true;
+    analogWrite(pumpPin,255);  
+}
+
 void stopWatering() {
+    pumpRunning = false;
     analogWrite(pumpPin,0);
 }
 
@@ -121,6 +128,27 @@ void parseCommand(char* cmd){
             return;
         }
     }
+
+    else if(!strcmp(cmd,"STWAT")){
+        if (args == 0){
+            startWatering();
+        }
+        else{
+            lastCommand = 0;
+            return;
+        }
+    }
+
+    else if(!strcmp(cmd,"SPWAT")){
+        if (args == 0){
+            stopWatering();
+        }
+        else{
+            lastCommand = 0;
+            return;
+        }
+    }
+
     else if(atoi(cmd) != 0 && lastCommand == -1){
         return;
     }
@@ -137,7 +165,7 @@ void parseCommand(char* cmd){
         Serial.println("Error:CommandNotFound");
     }
     Serial.println("done");
-
+ 
     if(lastCommand == -1){
         args = 0;  
     }
