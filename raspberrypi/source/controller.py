@@ -60,7 +60,6 @@ class PlantController:
         return ret
 
     def waterPlant(self, seconds=-1):
-        print("watering")
         if seconds == -1:
             self.__send_command('WATER')
         else:

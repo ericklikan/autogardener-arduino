@@ -21,7 +21,6 @@ class CommandNamespace(BaseNamespace):
             print(e)
 
     def on_event(self, event, *args):
-        print(event)
         if event == 'command':
             try:
                 self.__parse_command(args[0])
