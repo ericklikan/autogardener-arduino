@@ -2,7 +2,7 @@ from socketIO_client import SocketIO, BaseNamespace
 from threading import Thread
 
 hostname = 'localhost'
-port = 5000
+port = 8080
 command_namespace_path = '/commands'
 room_name = 'dapost'
 

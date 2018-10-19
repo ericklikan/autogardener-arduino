@@ -1,6 +1,5 @@
 from serial import Serial, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
 from time import sleep
-import asyncio
 
 
 class PlantController:
