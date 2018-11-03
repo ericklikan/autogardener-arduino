@@ -1,8 +1,8 @@
 from socketIO_client import SocketIO, BaseNamespace
 from threading import Thread
 
-hostname = 'localhost'
-port = 8080
+hostname = 'auto-garden.herokuapp.com'
+port = None
 command_namespace_path = '/commands'
 room_name = 'dapost'
 

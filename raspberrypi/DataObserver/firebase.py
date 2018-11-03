@@ -31,11 +31,12 @@ class Firebase:
     def setup_new_user(self):
         # Assume username and password are on environment variables that they got during setup
         email = os.environ.get('FIREBASE_USER') or ""
+        print(email)
         store('user_email', email)
 
         # Password is only needed for first login, refresh token will reauth for us
         password = os.environ.get('FIREBASE_PW') or ""
-
+        print(password)
         try:
             self.user = self.auth.sign_in_with_email_and_password(email, password)
             store('refreshToken', self.user['refreshToken'])
