@@ -1,10 +1,11 @@
 from socketIO_client import SocketIO, BaseNamespace
 from threading import Thread
+from DataObserver.store.store import retrieve
 
 hostname = 'auto-garden.herokuapp.com'
 port = None
 command_namespace_path = '/commands'
-room_name = 'dapost'
+room_name = retrieve("userid")
 
 
 class CommandNamespace(BaseNamespace):
